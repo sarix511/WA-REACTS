@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Reacts Web - Phone Pairing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 1200px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .section:hover {
+            border-color: #25d366;
+            box-shadow: 0 5px 20px rgba(37, 211, 102, 0.1);
+        }
+
+        .section h2 {
+            color: #128c7e;
+            margin-bottom: 20px;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            resize: none;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #25d366;
+            box-shadow: 0 0 10px rgba(37, 211, 102, 0.2);
+            background: white;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .phone-input-group {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .phone-input-group select {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .phone-input-group input {
+            margin-bottom: 0;
+        }
+
+        .react-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .react-btn {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            font-size: 24px;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .react-btn:hover {
+            transform: scale(1.2);
+            border-color: #25d366;
+            box-shadow: 0 5px 15px rgba(37, 211, 102, 0.2);
+        }
+
+        .react-btn.selected {
+            background: #25d366;
+            border-color: #25d366;
+            transform: scale(1.2);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3);
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #333;
+            border: 2px solid #dee2e6;
+        }
+
+        .btn-secondary:hover {
+            background: #dee2e6;
+            transform: translateY(-3px);
+        }
+
+        .btn-secondary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-danger:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #25d366;
+        }
+
+        .status-box.error {
+            border-left-color: #dc3545;
+        }
+
+        .status-box.warning {
+            border-left-color: #ffc107;
+        }
+
+        .status-box.success {
+            border-left-color: #25d366;
+        }
+
+        .status-box h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-box p {
+            color: #666;
+            font-size: 13px;
+            word-break: break-all;
+            line-height: 1.6;
+            font-family: 'Courier New', monospace;
+        }
+
+        .messages-list {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .message-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 3px solid #25d366;
+            font-size: 13px;
+            color: #333;
+        }
+
+        .message-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #25d366;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #25d366;
+        }
+
+        .pairing-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 15px;
+            border: 2px solid #ffc107;
+        }
+
+        .pairing-code {
+            font-size: 28px;
+            font-weight: bold;
+            color: #25d366;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 4px;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f0f5ff;
+            border-radius: 8px;
+            word-break: break-all;
+        }
+
+        .pairing-instructions {
+            color: #666;
+            font-size: 12px;
+            line-height: 1.8;
+            margin-top: 10px;
+        }
+
+        .stat {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 2px solid #e9ecef;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: #25d366;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e9ecef;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .react-selector {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+
+            .phone-input-group {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .badge {
+            display: inline-block;
+            background: #25d366;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 8px;
+            text-transform: uppercase;
+        }
+
+        .badge.offline {
+            background: #dc3545;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: #f0f5ff;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 13px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #dc3545;
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.online {
+            background: #25d366;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .countdown {
+            color: #ffc107;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💬 WhatsApp Reacts Web</h1>
+            <p>Send Emoji Reactions to WhatsApp Channels - Phone Number Pairing</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Connection Section -->
+            <div class="section">
+                <h2>📱 Phone Pairing</h2>
+                
+                <div class="connection-status">
+                    <div class="status-indicator" id="statusIndicator"></div>
+                    <span id="statusText">Disconnected</span>
+                    <span class="badge offline" id="statusBadge">offline</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Session Name</label>
+                    <input type="text" id="sessionName" placeholder="e.g., my_session" value="whatsapp_session">
+                </div>
+
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <div class="phone-input-group">
+                        <select id="countryCode">
+                            <option value="+1">🇺🇸 +1</option>
+                            <option value="+44">🇬🇧 +44</option>
+                            <option value="+91">🇮🇳 +91</option>
+                            <option value="+92">🇵🇰 +92</option>
+                            <option value="+55">🇧🇷 +55</option>
+                            <option value="+234">🇳🇬 +234</option>
+                            <option value="+49">🇩🇪 +49</option>
+                            <option value="+33">🇫🇷 +33</option>
+                            <option value="+39">🇮🇹 +39</option>
+                            <option value="+34">🇪🇸 +34</option>
+                            <option value="+86">🇨🇳 +86</option>
+                            <option value="+81">🇯🇵 +81</option>
+                            <option value="+82">🇰🇷 +82</option>
+                            <option value="+84">🇻🇳 +84</option>
+                            <option value="+60">🇲🇾 +60</option>
+                            <option value="+62">🇮🇩 +62</option>
+                            <option value="+66">🇹🇭 +66</option>
+                            <option value="+63">🇵🇭 +63</option>
+                        </select>
+                        <input type="text" id="phoneNumber" placeholder="1234567890" maxlength="15">
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" id="pairingBtn" onclick="requestPairingCode()">Request Pairing Code</button>
+                    <button class="btn-secondary" id="disconnectBtn" onclick="disconnectWhatsApp()" disabled>Disconnect</button>
+                </div>
+
+                <div id="pairingContainer"></div>
+
+                <div class="status-box" id="connectionStatus" style="display:none;">
+                    <h3>Status</h3>
+                    <p id="connectionStatusText"></p>
+                </div>
+
+                <div class="divider"></div>
+
+                <h2 style="margin-top: 20px;">📊 Statistics</h2>
+                <div class="stat">
+                    <span class="stat-label">Messages Sent</span>
+                    <span class="stat-value" id="messageCount">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Total Reacts</span>
+                    <span class="stat-value" id="reactCount">0</span>
+                </div>
+            </div>
+
+            <!-- Send Reacts Section -->
+            <div class="section">
+                <h2>😊 Send Reactions</h2>
+
+                <div class="form-group">
+                    <label>Target Channel/Chat ID</label>
+                    <input type="text" id="chatId" placeholder="e.g., 120363000000000000@g.us" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Message ID (Optional)</label>
+                    <input type="text" id="messageId" placeholder="Leave empty for latest message">
+                </div>
+
+                <div class="form-group">
+                    <label>Select Reaction Emoji</label>
+                    <div class="react-selector">
+                        <button class="react-btn" data-emoji="😂" onclick="selectReact('😂')">😂</button>
+                        <button class="react-btn" data-emoji="❤️" onclick="selectReact('❤️')">❤️</button>
+                        <button class="react-btn" data-emoji="😲" onclick="selectReact('😲')">😲</button>
+                        <button class="react-btn" data-emoji="😢" onclick="selectReact('😢')">😢</button>
+                        <button class="react-btn" data-emoji="😡" onclick="selectReact('😡')">😡</button>
+                        <button class="react-btn" data-emoji="👍" onclick="selectReact('👍')">👍</button>
+                        <button class="react-btn" data-emoji="🎉" onclick="selectReact('🎉')">🎉</button>
+                        <button class="react-btn" data-emoji="🔥" onclick="selectReact('🔥')">🔥</button>
+                        <button class="react-btn" data-emoji="😍" onclick="selectReact('😍')">😍</button>
+                        <button class="react-btn" data-emoji="💯" onclick="selectReact('💯')">💯</button>
+                        <button class="react-btn" data-emoji="✨" onclick="selectReact('✨')">✨</button>
+                        <button class="react-btn" data-emoji="👏" onclick="selectReact('👏')">👏</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Custom Text (Optional)</label>
+                    <textarea id="customText" placeholder="Add a custom message or note..."></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" id="sendReactBtn" onclick="sendReaction()" disabled>Send Reaction</button>
+                    <button class="btn-secondary" onclick="clearForm()">Clear</button>
+                </div>
+
+                <div class="status-box" id="responseStatus" style="display:none;">
+                    <h3>Response</h3>
+                    <p id="responseStatusText"></p>
+                </div>
+
+                <div class="divider"></div>
+
+                <h2 style="margin-top: 20px;">📝 Recent Reactions</h2>
+                <div class="messages-list" id="messagesList">
+                    <p style="color: #999; font-size: 13px;">No reactions sent yet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global Variables
+        let selectedEmoji = null;
+        let isConnected = false;
+        let messagesSent = 0;
+        let reactionsSent = 0;
+        let reactionHistory = [];
+        let pairingTimer = null;
+
+        const API_BASE_URL = 'http://localhost:3000/api';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('WhatsApp Reacts Web Initialized');
+            updateUI();
+        });
+
+        // Request Pairing Code
+        async function requestPairingCode() {
+            const sessionName = document.getElementById('sessionName').value || 'whatsapp_session';
+            const countryCode = document.getElementById('countryCode').value;
+            const phoneNumber = document.getElementById('phoneNumber').value;
+
+            if (!phoneNumber.trim()) {
+                showAlert('Please enter a phone number', 'error');
+                return;
+            }
+
+            const fullPhoneNumber = countryCode + phoneNumber.replace(/\D/g, '');
+
+            showLoading('pairingBtn', true);
+            document.getElementById('connectionStatus').style.display = 'block';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/request-pairing-code`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        sessionName,
+                        phoneNumber: fullPhoneNumber
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayPairingCode(data.code, data.expiresIn);
+                    document.getElementById('connectionStatusText').textContent = 
+                        `Pairing code requested for ${fullPhoneNumber}. Code expires in ${data.expiresIn} seconds.`;
+                    document.getElementById('connectionStatusText').parentElement.parentElement.classList.remove('error');
+                    document.getElementById('connectionStatusText').parentElement.parentElement.classList.add('warning');
+                } else {
+                    throw new Error(data.message || 'Failed to request pairing code');
+                }
+            } catch (error) {
+                console.error('Pairing code error:', error);
+                document.getElementById('connectionStatusText').textContent = 
+                    `Error: ${error.message}`;
+                document.getElementById('connectionStatusText').parentElement.parentElement.classList.add('error');
+            } finally {
+                showLoading('pairingBtn', false);
+            }
+        }
+
+        // Display Pairing Code
+        function displayPairingCode(code, expiresIn) {
+            const container = document.getElementById('pairingContainer');
+            let timeLeft = expiresIn;
+
+            container.innerHTML = `
+                <div class="pairing-container">
+                    <p style="color: #666; margin-bottom: 10px; font-size: 13px;">✅ Pairing Code Generated</p>
+                    <div class="pairing-code">${code}</div>
+                    <div class="pairing-instructions">
+                        <strong>Instructions:</strong><br>
+                        1. Open WhatsApp on your phone<br>
+                        2. Go to Settings → Linked Devices<br>
+                        3. Tap "Link a device"<br>
+                        4. Enter this code when prompted<br>
+                        <br>
+                        ⏱️ Code expires in: <span id="countdown">${timeLeft}s</span>
+                    </div>
+                </div>
+            `;
+
+            // Countdown timer
+            if (pairingTimer) clearInterval(pairingTimer);
+            pairingTimer = setInterval(() => {
+                timeLeft--;
+                const countdownEl = document.getElementById('countdown');
+                if (countdownEl) {
+                    countdownEl.textContent = `${timeLeft}s`;
+                    if (timeLeft <= 0) {
+                        clearInterval(pairingTimer);
+                        container.innerHTML = '<div class="pairing-container" style="color: #dc3545;">❌ Pairing code expired. Please request a new one.</div>';
+                    }
+                }
+            }, 1000);
+        }
+
+        // Check Pairing Status
+        async function checkPairingStatus() {
+            const sessionName = document.getElementById('sessionName').value || 'whatsapp_session';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/pairing-status/${sessionName}`);
+                const data = await response.json();
+
+                if (data.connected) {
+                    isConnected = true;
+                    document.getElementById('pairingContainer').innerHTML = '';
+                    document.getElementById('connectionStatusText').textContent = 
+                        'Connected successfully! Ready to send reactions.';
+                    document.getElementById('connectionStatusText').parentElement.parentElement.classList.remove('error', 'warning');
+                    document.getElementById('connectionStatusText').parentElement.parentElement.classList.add('success');
+                    updateConnectionUI();
+                    clearInterval(pairingTimer);
+                }
+            } catch (error) {
+                console.error('Status check error:', error);
+            }
+        }
+
+        // Poll for connection status
+        setInterval(() => {
+            if (!isConnected && document.getElementById('pairingContainer').innerHTML.includes('Pairing Code')) {
+                checkPairingStatus();
+            }
+        }, 3000);
+
+        // Disconnect from WhatsApp
+        async function disconnectWhatsApp() {
+            const sessionName = document.getElementById('sessionName').value || 'whatsapp_session';
+            
+            showLoading('disconnectBtn', true);
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/disconnect`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ sessionName })
+                });
+
+                if (response.ok) {
+                    isConnected = false;
+                    document.getElementById('connectionStatus').style.display = 'none';
+                    document.getElementById('pairingContainer').innerHTML = '';
+                    updateUI();
+                    showAlert('Disconnected successfully', 'success');
+                } else {
+                    throw new Error('Disconnection failed');
+                }
+            } catch (error) {
+                console.error('Disconnection error:', error);
+                showAlert(`Error: ${error.message}`, 'error');
+            } finally {
+                showLoading('disconnectBtn', false);
+            }
+        }
+
+        // Select Emoji
+        function selectReact(emoji) {
+            document.querySelectorAll('.react-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            selectedEmoji = emoji;
+            event.target.classList.add('selected');
+        }
+
+        // Send Reaction
+        async function sendReaction() {
+            if (!selectedEmoji) {
+                showAlert('Please select an emoji reaction', 'error');
+                return;
+            }
+
+            if (!isConnected) {
+                showAlert('Please connect first', 'error');
+                return;
+            }
+
+            const chatId = document.getElementById('chatId').value;
+            if (!chatId.trim()) {
+                showAlert('Please enter a chat ID', 'error');
+                return;
+            }
+
+            const messageId = document.getElementById('messageId').value || null;
+            const customText = document.getElementById('customText').value || '';
+            const sessionName = document.getElementById('sessionName').value || 'whatsapp_session';
+
+            showLoading('sendReactBtn', true);
+            document.getElementById('responseStatus').style.display = 'block';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/send-reaction`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        sessionName,
+                        chatId,
+                        emoji: selectedEmoji,
+                        messageId,
+                        customText
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('responseStatusText').textContent = 
+                        `✅ Reaction sent successfully!\nEmoji: ${selectedEmoji}\nChat: ${chatId}`;
+                    document.getElementById('responseStatus').classList.remove('error', 'warning');
+                    document.getElementById('responseStatus').classList.add('success');
+                    
+                    messagesSent++;
+                    reactionsSent++;
+                    addToHistory(selectedEmoji, chatId);
+                    updateStats();
+                } else {
+                    throw new Error(data.message || 'Failed to send reaction');
+                }
+            } catch (error) {
+                console.error('Send reaction error:', error);
+                document.getElementById('responseStatusText').textContent = 
+                    `❌ Error: ${error.message}`;
+                document.getElementById('responseStatus').classList.add('error');
+            } finally {
+                showLoading('sendReactBtn', false);
+            }
+        }
+
+        // Add to History
+        function addToHistory(emoji, chatId) {
+            const timestamp = new Date().toLocaleTimeString();
+            reactionHistory.unshift({ emoji, chatId, timestamp });
+            
+            if (reactionHistory.length > 10) {
+                reactionHistory.pop();
+            }
+
+            updateHistoryDisplay();
+        }
+
+        // Update History Display
+        function updateHistoryDisplay() {
+            const historyList = document.getElementById('messagesList');
+            
+            if (reactionHistory.length === 0) {
+                historyList.innerHTML = '<p style="color: #999; font-size: 13px;">No reactions sent yet</p>';
+                return;
+            }
+
+            historyList.innerHTML = reactionHistory.map(item => `
+                <div class="message-item">
+                    <strong>${item.emoji}</strong> sent to <code>${item.chatId}</code> at ${item.timestamp}
+                </div>
+            `).join('');
+        }
+
+        // Update Stats
+        function updateStats() {
+            document.getElementById('messageCount').textContent = messagesSent;
+            document.getElementById('reactCount').textContent = reactionsSent;
+        }
+
+        // Clear Form
+        function clearForm() {
+            document.getElementById('messageId').value = '';
+            document.getElementById('customText').value = '';
+            document.getElementById('chatId').value = '';
+            document.querySelectorAll('.react-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            selectedEmoji = null;
+            document.getElementById('responseStatus').style.display = 'none';
+        }
+
+        // Show Alert
+        function showAlert(message, type = 'info') {
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        // Show Loading State
+        function showLoading(elementId, isLoading) {
+            const btn = document.getElementById(elementId);
+            if (isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = `<span class="spinner"></span>Processing...`;
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = elementId === 'pairingBtn' ? 'Request Pairing Code' : 'Disconnect';
+            }
+        }
+
+        // Update Connection UI
+        function updateConnectionUI() {
+            const indicator = document.getElementById('statusIndicator');
+            const badge = document.getElementById('statusBadge');
+            const text = document.getElementById('statusText');
+
+            indicator.classList.add('online');
+            badge.classList.remove('offline');
+            badge.textContent = 'online';
+            text.textContent = 'Connected';
+            document.getElementById('sendReactBtn').disabled = false;
+            document.getElementById('disconnectBtn').disabled = false;
+            document.getElementById('pairingBtn').disabled = true;
+        }
+
+        // Update UI
+        function updateUI() {
+            document.getElementById('pairingBtn').disabled = false;
+            document.getElementById('disconnectBtn').disabled = true;
+            document.getElementById('sendReactBtn').disabled = true;
+            document.getElementById('statusIndicator').classList.remove('online');
+            document.getElementById('statusBadge').textContent = 'offline';
+            document.getElementById('statusText').textContent = 'Disconnected';
+        }
+    </script>
+</body>
+</html>
